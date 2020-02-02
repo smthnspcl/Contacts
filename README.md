@@ -78,7 +78,7 @@ List<Contact> contacts = mainQuery.find();
 
 ## Installation
 
-Published to JCenter
+From JitPack
 
 ```java
 
