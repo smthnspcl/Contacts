@@ -82,7 +82,7 @@ From JitPack
 
 ```java
 
- compile 'com.github.tamir7.contacts:contacts:1.1.7'
+ compile 'com.github.smthnspcl:contacts:master-SNAPSHOT'
 ```
 
 ## License
