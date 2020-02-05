@@ -433,6 +433,17 @@ public final class Query {
     }
 
     private void insertContact(Contact contact){
+        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+        operations.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValue(ContactsContract.Data.CONTACT_ID, contact.getId())
+                .withValue(ContactsContract.Data.DISPLAY_NAME, contact.getDisplayName())
+                .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
+                .build());
+        try {
+            cr.applyBatch(AUTHORITY, operations);
+        } catch (RemoteException | OperationApplicationException e){
+            e.printStackTrace();
+        }
         insert(makeBasicInformation(contact));
         updateContact(contact);
     }
