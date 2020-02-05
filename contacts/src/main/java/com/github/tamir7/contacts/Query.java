@@ -16,19 +16,25 @@
 
 package com.github.tamir7.contacts;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static android.provider.ContactsContract.AUTHORITY;
 
 /**
  * The Query class defines a query that is used to fetch Contact objects.
@@ -369,6 +375,10 @@ public final class Query {
         cr.update(ContactsContract.Data.CONTENT_URI, cv, "{0}={1}".replace("{0}", ContactsContract.RawContacts.CONTACT_ID).replace("{1}", String.valueOf(id)), null);
     }
 
+    private void insert(ContentValues cv){
+        cr.insert(ContactsContract.Data.CONTENT_URI, cv);
+    }
+
     private void updateWhereId(long id, String key, String data){
         ContentValues cv = new ContentValues();
         cv.put(key, data);
@@ -402,7 +412,7 @@ public final class Query {
         for(String website : websites) updateWebsite(id, website);
     }
 
-    private void updateBasicInformation(Contact contact){
+    private ContentValues makeBasicInformation(Contact contact){
         ContentValues cv = new ContentValues();
         cv.put(ContactsContract.RawContacts.CONTACT_ID, contact.getId());
         cv.put(ContactsContract.Data.DISPLAY_NAME, contact.getDisplayName());
@@ -411,14 +421,30 @@ public final class Query {
         cv.put(ContactsContract.CommonDataKinds.Organization.COMPANY, contact.getCompanyName());
         cv.put(ContactsContract.CommonDataKinds.Organization.TITLE, contact.getCompanyTitle());
         cv.put(ContactsContract.CommonDataKinds.Note.NOTE, contact.getNote());
-        update(contact.getId(), cv);
+        return cv;
+    }
+
+    private void updateBasicInformation(Contact contact){
+        update(contact.getId(), makeBasicInformation(contact));
+    }
+
+    public boolean exists(Contact contact){
+        return find(Collections.singletonList(contact.getId())).isEmpty();
+    }
+
+    private void insertContact(Contact contact){
+        insert(makeBasicInformation(contact));
+        updateContact(contact);
     }
 
     public void updateContact(Contact contact){
-        long id = contact.getId();
-        updateBasicInformation(contact);
-        updateWebsites(id, contact.getWebsites());
-        updatePhoneNumbers(id, contact.getPhoneNumbers());
-        // todo do rest
+        if(!exists(contact)) insertContact(contact);
+        else {
+            long id = contact.getId();
+            updateBasicInformation(contact);
+            updateWebsites(id, contact.getWebsites());
+            updatePhoneNumbers(id, contact.getPhoneNumbers());
+            // todo do rest
+        }
     }
 }
