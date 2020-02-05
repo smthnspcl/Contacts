@@ -150,62 +150,62 @@ public final class Contact {
         this.id = id;
     }
 
-    Contact addDisplayName(String displayName) {
+    public Contact addDisplayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
 
-    Contact addGivenName(String givenName) {
+    public Contact addGivenName(String givenName) {
         this.givenName = givenName;
         return this;
     }
 
-    Contact addFamilyName(String familyName) {
+    public Contact addFamilyName(String familyName) {
         this.familyName = familyName;
         return this;
     }
 
-    Contact addPhoneNumber(PhoneNumber phoneNumber) {
+    public Contact addPhoneNumber(PhoneNumber phoneNumber) {
         phoneNumbers.add(phoneNumber);
         return this;
     }
 
-    Contact addPhotoUri(String photoUri) {
+    public Contact addPhotoUri(String photoUri) {
         this.photoUri = photoUri;
         return this;
     }
 
-    Contact addEmail(Email email) {
+    public Contact addEmail(Email email) {
         emails.add(email);
         return this;
     }
 
-    Contact addEvent(Event event) {
+    public Contact addEvent(Event event) {
         events.add(event);
         return this;
     }
 
-    Contact addCompanyName(String companyName) {
+    public Contact addCompanyName(String companyName) {
         this.companyName = companyName;
         return this;
     }
 
-    Contact addCompanyTitle(String companyTitle) {
+    public Contact addCompanyTitle(String companyTitle) {
         this.companyTitle = companyTitle;
         return this;
     }
 
-    Contact addWebsite(String website) {
+    public Contact addWebsite(String website) {
         websites.add(website);
         return this;
     }
 
-    Contact addNote(String note) {
+    public Contact addNote(String note) {
         this.note = note;
         return this;
     }
 
-    Contact addAddress(Address address) {
+    public Contact addAddress(Address address) {
         addresses.add(address);
         return this;
     }

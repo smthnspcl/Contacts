@@ -16,10 +16,11 @@
 
 package com.github.tamir7.contacts;
 
+import android.content.ContentResolver;
 import android.content.Context;
 
 public final class Contacts {
-    private static Context context;
+    private static ContentResolver cr;
 
     private Contacts() {}
 
@@ -29,7 +30,15 @@ public final class Contacts {
      * @param context context
      */
     public static void initialize(Context context) {
-        Contacts.context = context.getApplicationContext();
+        cr = context.getApplicationContext().getContentResolver();
+    }
+
+    private static void exception(){
+        throw new IllegalStateException("Contacts library not initialized");
+    }
+
+    private static void check(){
+        if (cr == null) exception();
     }
 
     /**
@@ -38,10 +47,7 @@ public final class Contacts {
      * @return  A new Query object.
      */
     public static Query getQuery() {
-        if (Contacts.context == null) {
-            throw new IllegalStateException("Contacts library not initialized");
-        }
-
-        return new Query(context);
+        check();
+        return new Query(cr);
     }
 }

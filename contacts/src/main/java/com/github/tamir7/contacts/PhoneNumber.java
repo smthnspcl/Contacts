@@ -99,6 +99,53 @@ public class PhoneNumber {
                     return UNKNOWN;
             }
         }
+
+        static int fromType(Type type){
+            switch (type) {
+                case HOME:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_HOME;
+                case MOBILE:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
+                case WORK:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_WORK;
+                case FAX_WORK:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_FAX_WORK;
+                case FAX_HOME:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_FAX_HOME;
+                case PAGER:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_PAGER;
+                case OTHER:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_OTHER;
+                case CALLBACK:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_CALLBACK;
+                case CAR:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_CAR;
+                case COMPANY_MAIN:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_COMPANY_MAIN;
+                case ISDN:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_ISDN;
+                case MAIN:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_MAIN;
+                case OTHER_FAX:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_OTHER_FAX;
+                case RADIO:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_RADIO;
+                case TELEX:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_TELEX;
+                case TTY_TDD:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_TTY_TDD;
+                case WORK_MOBILE:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_WORK_MOBILE;
+                case WORK_PAGER:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_WORK_PAGER;
+                case ASSISTANT:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_ASSISTANT;
+                case MMS:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_MMS;
+                default:
+                    return ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM;
+            }
+        }
     }
 
     PhoneNumber(String number, Type type, String normalizedNumber) {

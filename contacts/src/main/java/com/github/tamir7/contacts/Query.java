@@ -16,7 +16,8 @@
 
 package com.github.tamir7.contacts;
 
-import android.content.Context;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 
@@ -33,14 +34,14 @@ import java.util.Set;
  * The Query class defines a query that is used to fetch Contact objects.
  */
 public final class Query {
-    private final Context context;
+    private ContentResolver cr;
     private final Map<String, Where> mimeWhere = new HashMap<>();
     private Where defaultWhere = null;
     private Set<Contact.Field> include = new HashSet<>();
     private List<Query> innerQueries;
 
-    Query(Context context) {
-        this.context = context;
+    Query(ContentResolver cr) {
+        this.cr = cr;
         include.addAll(Arrays.asList(Contact.Field.values()));
     }
 
@@ -162,7 +163,7 @@ public final class Query {
             where = addWhere(where, Where.in(ContactsContract.RawContacts.CONTACT_ID, new ArrayList<Object>(ids)));
         }
 
-        Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+        Cursor c = cr.query(ContactsContract.Data.CONTENT_URI,
                 projection,
                 where.toString(),
                 null,
@@ -186,7 +187,7 @@ public final class Query {
         List<Long> ids = new ArrayList<>();
 
         if (mimeWhere.isEmpty()) {
-            Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+            Cursor c = cr.query(ContactsContract.Data.CONTENT_URI,
                     new String[]{ContactsContract.RawContacts.CONTACT_ID},
                     defaultWhere.toString(),
                     null,
@@ -217,7 +218,7 @@ public final class Query {
             where = Where.in(ContactsContract.RawContacts.CONTACT_ID, new ArrayList<>(ids));
         }
 
-        Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+        Cursor c = cr.query(ContactsContract.Data.CONTENT_URI,
                 buildProjection(),
                 addWhere(where, buildWhereFromInclude()).toString(),
                 null,
@@ -356,5 +357,68 @@ public final class Query {
 
     private Where addWhere(Where where, Where otherWhere) {
         return where == null ? otherWhere : where.and(otherWhere);
+    }
+
+    private ContentValues forId(long id){
+        ContentValues cv = new ContentValues();
+        cv.put(ContactsContract.RawContacts.CONTACT_ID, id);
+        return cv;
+    }
+
+    private void update(long id,  ContentValues cv){
+        cr.update(ContactsContract.Data.CONTENT_URI, cv, "{0}={1}".replace("{0}", ContactsContract.RawContacts.CONTACT_ID).replace("{1}", String.valueOf(id)), null);
+    }
+
+    private void updateWhereId(long id, String key, String data){
+        ContentValues cv = new ContentValues();
+        cv.put(key, data);
+        update(id, cv);
+    }
+
+    private void updateWhereId(long id, String key, int data){
+        ContentValues cv = new ContentValues();
+        cv.put(key, data);
+        update(id, cv);
+    }
+
+    private void updatePhoneNumber(long id, PhoneNumber phoneNumber){
+        ContentValues _cv = new ContentValues();
+        _cv.put(ContactsContract.CommonDataKinds.Phone.TYPE, PhoneNumber.Type.fromType(phoneNumber.getType()));
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) _cv.put(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER, phoneNumber.getNormalizedNumber());
+        _cv.put(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber.getNumber());
+        _cv.put(ContactsContract.CommonDataKinds.Phone.LABEL, phoneNumber.getLabel());
+        update(id, _cv);
+    }
+
+    private void updatePhoneNumbers(long id, List<PhoneNumber> phoneNumbers){
+        for(PhoneNumber pn : phoneNumbers) updatePhoneNumber(id, pn);
+    }
+
+    private void updateWebsite(long id, String website){
+        updateWhereId(id, ContactsContract.CommonDataKinds.Website.URL, website);
+    }
+
+    private void updateWebsites(long id, List<String> websites) {
+        for(String website : websites) updateWebsite(id, website);
+    }
+
+    private void updateBasicInformation(Contact contact){
+        ContentValues cv = new ContentValues();
+        cv.put(ContactsContract.RawContacts.CONTACT_ID, contact.getId());
+        cv.put(ContactsContract.Data.DISPLAY_NAME, contact.getDisplayName());
+        cv.put(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, contact.getGivenName());
+        cv.put(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME, contact.getFamilyName());
+        cv.put(ContactsContract.CommonDataKinds.Organization.COMPANY, contact.getCompanyName());
+        cv.put(ContactsContract.CommonDataKinds.Organization.TITLE, contact.getCompanyTitle());
+        cv.put(ContactsContract.CommonDataKinds.Note.NOTE, contact.getNote());
+        update(contact.getId(), cv);
+    }
+
+    public void updateContact(Contact contact){
+        long id = contact.getId();
+        updateBasicInformation(contact);
+        updateWebsites(id, contact.getWebsites());
+        updatePhoneNumbers(id, contact.getPhoneNumbers());
+        // todo do rest
     }
 }

@@ -37,6 +37,19 @@ public class Address {
                     return UNKNOWN;
             }
         }
+
+        static int fromType(Type type) {
+            switch (type) {
+                case HOME:
+                    return ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME;
+                case WORK:
+                    return ContactsContract.CommonDataKinds.StructuredPostal.TYPE_WORK;
+                case OTHER:
+                    return ContactsContract.CommonDataKinds.StructuredPostal.TYPE_OTHER;
+                default:
+                    return ContactsContract.CommonDataKinds.StructuredPostal.TYPE_CUSTOM;
+            }
+        }
     }
 
     private Address(String address,
