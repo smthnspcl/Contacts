@@ -385,12 +385,6 @@ public final class Query {
         update(id, cv);
     }
 
-    private void updateWhereId(long id, String key, int data){
-        ContentValues cv = new ContentValues();
-        cv.put(key, data);
-        update(id, cv);
-    }
-
     private void updatePhoneNumber(long id, PhoneNumber phoneNumber){
         ContentValues _cv = new ContentValues();
         _cv.put(ContactsContract.CommonDataKinds.Phone.TYPE, PhoneNumber.Type.fromType(phoneNumber.getType()));
@@ -433,7 +427,28 @@ public final class Query {
     }
 
     private void insertContact(Contact contact){
-        insert(makeBasicInformation(contact));
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        ops.add(ContentProviderOperation.newInsert(
+                ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build());
+        ops.add(ContentProviderOperation.newInsert(
+                ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                .withValue(ContactsContract.Data.MIMETYPE,ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, contact.getGivenName())
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, contact.getDisplayName())
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME, contact.getFamilyName())
+                .build());
+
+        try {
+            cr.applyBatch(AUTHORITY, ops);
+        }catch (RemoteException | OperationApplicationException e){
+            e.printStackTrace();
+        }
+
+        insert(makeBasicInformation(contact)); // is not creating new contact?
         updateContact(contact);
     }
 
